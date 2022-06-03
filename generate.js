@@ -37,7 +37,7 @@ function getA1Cdata() {
       document.getElementById("patientFN").innerText = error.stack;
     }
   );
-  let container = document.getElementById('containerId'); let tblRow=null; let tblCell=null;tblRow = document.createElement('div');tblRow.classList.add('row'); tblCell = document.createElement('div');tblCell.className='col-sm-6';tblCell.setAttribute('style', 'padding: 40px;');tblRow.appendChild(tblCell);displayBarChart(tblCell,'Observation','VITAL SIGN (BMI)');; tblCell = document.createElement('div');tblCell.className='col-sm-6';tblCell.setAttribute('style', 'padding: 40px;');tblRow.appendChild(tblCell);displayLine(tblCell,'Observation','LAB (Createnine)');;container.appendChild(tblRow);tblRow = document.createElement('div');tblRow.classList.add('row'); tblCell = document.createElement('div');tblCell.className='col-sm-6';tblCell.setAttribute('style', 'padding: 40px;');tblRow.appendChild(tblCell);displayTreeView(tblCell,'Procedure','Text|PerformedPeriodstart|PerformedPeriodEnd|Status');; tblCell = document.createElement('div');tblCell.className='col-sm-6';tblCell.setAttribute('style', 'padding: 40px;');tblRow.appendChild(tblCell);displayTable(tblCell,'MedicationRequest','Text|Status|Intent');;container.appendChild(tblRow);
+  let container = document.getElementById('containerId'); let tblRow=null; let tblCell=null;tblRow = document.createElement('div');tblRow.classList.add('row'); tblCell = document.createElement('div');tblCell.className='col-sm-6';tblCell.setAttribute('style', 'padding: 40px;');tblRow.appendChild(tblCell);displayTable(tblCell,'Fibrosis-4','(|Age|*|AST|)|/|(|Platelets|*|√|(|ALT|)|)');; tblCell = document.createElement('div');tblCell.className='col-sm-6';tblCell.setAttribute('style', 'padding: 40px;');tblRow.appendChild(tblCell);displayLine(tblCell,'Observation','LAB (Createnine)');;container.appendChild(tblRow);tblRow = document.createElement('div');tblRow.classList.add('row'); tblCell = document.createElement('div');tblCell.className='col-sm-6';tblCell.setAttribute('style', 'padding: 40px;');tblRow.appendChild(tblCell);displayTable(tblCell,'MedicationRequest','Text|Status|Intent');; tblCell = document.createElement('div');tblCell.className='col-sm-6';tblCell.setAttribute('style', 'padding: 40px;');tblRow.appendChild(tblCell);displayLine(tblCell,'Observation','VITAL SIGN (Pressure)');;container.appendChild(tblRow);
 }
 
 function displayBarChart(container, type, params) {
@@ -107,23 +107,7 @@ QueryPatientDataWithCode(type, loincCode, 10)
 }
 
 function displayLine(container, type, params) {
-var paramList = params.split("|");
-
-var loincCode = "39156-5";
-if (paramList[0] == 'LAB (Createnine)') {
-  loincCode = '38483-4'
-}
-if (paramList[0] == 'Vital Sign (Weight)') {
-  loincCode = "39156-5";
-}
-
-var maxCount = 10;
-
-/////////////
-var chartTitle = type + "-" + paramList[0];
-  QueryPatientDataWithCode(type, loincCode, 10)
-  .then(function (fhirObservations) {
-    //var medInfoChart = document.getElementById("container");
+      //var medInfoChart = document.getElementById("container");
     var medInfoChartDiv = document.createElement("div");
     // medInfoChartDiv.setAttribute("style", "border-style: groove;");
     container.append(medInfoChartDiv);
@@ -137,43 +121,109 @@ var chartTitle = type + "-" + paramList[0];
       "width:600px;height:400px;padding-left:30px;"
     );
     medInfoChartDiv.appendChild(chartCDiv);
+  var trace1 = {
+    x: [0, 1, 2, 3, 4],
+    y: [10, 5, 30, 45, 22],
+    name: 'BMI',
+    type: 'scatter'
+  };
+  
+  var trace2 = {
+    x: [0, 1, 2, 3, 4],
+    y: [100, 130, 190,90,160],
+    name: 'Cretanine',
+    yaxis: 'y2',
+    type: 'scatter'
+  };
+  
+  var trace3 = {
+    x: [0, 1, 2, 3, 4],
+    y: [1000, 1100, 880, 1350, 1100],
+    name: 'Weight',
+    yaxis: 'y3',
+    type: 'scatter'
+  };
+  
+  var data = [trace1, trace2, trace3];
+  
+  var layout = {
+    yaxis: {domain: [0, 0.33]},
+    legend: {traceorder: 'reversed'},
+    yaxis2: {domain: [0.33, 0.66]},
+    yaxis3: {domain: [0.66, 1]}
+  };
+   Plotly.newPlot(chartCDiv, data, layout);
 
-    var dates = [];
-    var values = [];
-    (fhirObservations.data.entry || []).forEach(function (a1c) {
-      var date = a1c.resource.effectiveDateTime;
-      var value =
-        a1c.resource.valueQuantity && a1c.resource.valueQuantity.value;
-      if (date && value && dates.indexOf(date) == -1) {
-        dates.push(date);
-        values.push(Math.round(value * 10) / 10);
-      }
-    });
 
-    if (values.length === 0)
-      return (statusCHeading.innerHTML =
-        "No observations found.");
 
-    statusCHeading.style.display = "none";
+  ///////Original
+// var paramList = params.split("|");
 
-    Plotly.newPlot(chartCDiv, {
-      data: [
-        {
-          x: dates,
-          y: values,
-          type: "line"
-        }
-      ],
-      layout: {
-        title: chartTitle,
-         xaxis: { type: "date", tickformat: "%m/%d/%y", tickangle:-90 },
-        yaxis: { range: [0, 100] }
-      },
-      config: {
-        displayModeBar: false
-      }
-    });
-  });
+// var loincCode = "39156-5";
+// if (paramList[0] == 'LAB (Createnine)') {
+//   loincCode = '38483-4'
+// }
+// if (paramList[0] == 'Vital Sign (Weight)') {
+//   loincCode = "39156-5";
+// }
+
+// var maxCount = 10;
+
+// /////////////
+// var chartTitle = type + "-" + paramList[0];
+//   QueryPatientDataWithCode(type, loincCode, 10)
+//   .then(function (fhirObservations) {
+//     //var medInfoChart = document.getElementById("container");
+//     var medInfoChartDiv = document.createElement("div");
+//     // medInfoChartDiv.setAttribute("style", "border-style: groove;");
+//     container.append(medInfoChartDiv);
+//     var statusCHeading = document.createElement("h1");
+//     statusCHeading.setAttribute("id", "statusC");
+//     medInfoChartDiv.appendChild(statusCHeading);
+//     var chartCDiv = document.createElement("div");
+//     chartCDiv.setAttribute("id", "chartC");
+//     chartCDiv.setAttribute(
+//       "style",
+//       "width:600px;height:400px;padding-left:30px;"
+//     );
+//     medInfoChartDiv.appendChild(chartCDiv);
+
+//     var dates = [];
+//     var values = [];
+//     (fhirObservations.data.entry || []).forEach(function (a1c) {
+//       var date = a1c.resource.effectiveDateTime;
+//       var value =
+//         a1c.resource.valueQuantity && a1c.resource.valueQuantity.value;
+//       if (date && value && dates.indexOf(date) == -1) {
+//         dates.push(date);
+//         values.push(Math.round(value * 10) / 10);
+//       }
+//     });
+
+//     if (values.length === 0)
+//       return (statusCHeading.innerHTML =
+//         "No observations found.");
+
+//     statusCHeading.style.display = "none";
+
+//     Plotly.newPlot(chartCDiv, {
+//       data: [
+//         {
+//           x: dates,
+//           y: values,
+//           type: "line"
+//         }
+//       ],
+//       layout: {
+//         title: chartTitle,
+//          xaxis: { type: "date", tickformat: "%m/%d/%y", tickangle:-90 },
+//         yaxis: { range: [0, 100] }
+//       },
+//       config: {
+//         displayModeBar: false
+//       }
+//     });
+//   });
 }
 
 function displayTable(container, type, params) {
@@ -318,6 +368,40 @@ QueryPatientData(type, 10)
     }
   });
 }
+
+function displayCalc(container, type, params) {
+  var paramList = params.split("|");
+
+        // var valuesStringify = JSON.stringify(values, null, 4);
+  
+        //var medInfoTable = document.getElementById("container");
+        var medInfoTableDiv = document.createElement("div");
+        medInfoTableDiv.setAttribute("class", "row");
+        container.appendChild(medInfoTableDiv);
+        var medInfoHeading = document.createElement("h4");
+  
+        medInfoHeading.setAttribute(
+          "style",
+          "padding-left:30px; color: black;"
+        );
+        medInfoHeading.textContent = "Calclator Name: " + type;
+        medInfoTableDiv.appendChild(medInfoHeading);
+        var medInfoHeading3 = document.createElement("h3");
+        medInfoHeading3.textContent = "Formula: " + paramList.join("");
+
+        medInfoTableDiv.appendChild(medInfoHeading3);
+
+        var resultH1 = document.createElement("h1");
+        resultH1.textContent = "Age= 35, AST=40, ALT=32, Platelet=300";
+        medInfoTableDiv.appendChild(resultH1);
+
+        var resultH3 = document.createElement("h3");
+        resultH3.textContent = "Result= " + "0.82 points";  
+        medInfoTableDiv.appendChild(resultH3);      
+        
+        container.appendChild(medInfoTableDiv);
+  }
+
 function displayTreeView(container, type, params, maxCount) {
 var paramList = params.split("|");
 QueryPatientData(type, 10)
